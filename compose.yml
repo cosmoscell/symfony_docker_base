@@ -19,6 +19,8 @@ services:
     ports:
       - "${DOCKER_SYMFONY_HOST_HTTP_PORT}:80"
       - "${DOCKER_SYMFONY_HOST_HTTPS_PORT}:443"
+    depends_on:
+      - php_fpm
   php_fpm:
     container_name: ${DOCKER_SYMFONY_PROJECT_NAME}_php_fpm
     build:
