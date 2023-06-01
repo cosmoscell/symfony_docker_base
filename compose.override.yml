@@ -1,11 +1,11 @@
 x-app: &default-app
   logging:
-    driver: 'json-file'
+    driver: json-file
     options:
-      max-size: '500k'
-      max-file: '5'
-  restart: 'unless-stopped'
-  stop_grace_period: '3s'
+      max-size: 500k
+      max-file: 5
+  restart: unless-stopped
+  stop_grace_period: 3s
 
 services:
   phpmyadmin:
@@ -23,3 +23,11 @@ services:
       - ${DOCKER_SYMFONY_HOST_PORT_PMA}:80
     depends_on:
       - mariadb
+  mailhog:
+    <<: *default-app
+    container_name: ${DOCKER_SYMFONY_PROJECT_NAME}_mailhog
+    build:
+      context: ./docker/build/mailhog
+    ports:
+      - ${DOCKER_SYMFONY_HOST_PORT_MAILHOG_HTTP}:8025
+      - ${DOCKER_SYMFONY_HOST_PORT_MAILHOG_SMTP}:1025

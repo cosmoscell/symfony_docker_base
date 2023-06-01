@@ -1,11 +1,11 @@
 x-app: &default-app
   logging:
-    driver: 'json-file'
+    driver: json-file
     options:
-      max-size: '500k'
-      max-file: '5'
-  restart: 'unless-stopped'
-  stop_grace_period: '3s'
+      max-size: 500k
+      max-file: 5
+  restart: unless-stopped
+  stop_grace_period: 3s
 
 services:
   nginx:
@@ -19,8 +19,8 @@ services:
       - ./docker/mount/logs/nginx/access_log:/var/log/nginx/access_log
       - ./docker/mount/logs/nginx/error_log:/var/log/nginx/error_log
     ports:
-      - "${DOCKER_SYMFONY_HOST_PORT_HTTP}:80"
-      - "${DOCKER_SYMFONY_HOST_PORT_HTTPS}:443"
+      - ${DOCKER_SYMFONY_HOST_PORT_NGINX_HTTP}:80
+      - ${DOCKER_SYMFONY_HOST_PORT_NGINX_HTTPS}:443
     depends_on:
       - php_fpm
   php_fpm:
