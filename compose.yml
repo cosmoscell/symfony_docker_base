@@ -1,0 +1,31 @@
+services:
+  nginx:
+    container_name: ${DOCKER_SYMFONY_PROJECT_NAME}_nginx
+    build:
+      context: ./.docker/build/nginx
+    volumes:
+      - type: bind
+        source: ./.docker/mount/config/nginx/etc/nginx/conf.d/default.conf
+        target: /etc/nginx/conf.d/default.conf
+      - type: bind
+        source: ./.docker/mount/logs/nginx/access_log
+        target: /var/log/nginx/access_log
+      - type: bind
+        source: ./.docker/mount/logs/nginx/error_log
+        target: /var/log/nginx/error_log
+      - type: bind
+        source: ./.docker/mount/app
+        target: /var/www/html
+    ports:
+      - "${DOCKER_SYMFONY_HOST_HTTP_PORT}:80"
+      - "${DOCKER_SYMFONY_HOST_HTTPS_PORT}:443"
+  php_fpm:
+    container_name: ${DOCKER_SYMFONY_PROJECT_NAME}_php_fpm
+    build:
+      context: ./.docker/build/php-fpm
+      args:
+        TIMEZONE: ${DOCKER_SYMFONY_TIMEZONE}
+    volumes:
+      - type: bind
+        source: ./.docker/mount/app
+        target: /var/www/html
