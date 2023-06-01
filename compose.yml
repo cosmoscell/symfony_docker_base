@@ -12,20 +12,12 @@ services:
     <<: *default-app
     container_name: ${DOCKER_SYMFONY_PROJECT_NAME}_nginx
     build:
-      context: ./.docker/build/nginx
+      context: ./docker/build/nginx
     volumes:
-      - type: bind
-        source: ./.docker/mount/config/nginx/etc/nginx/conf.d/default.conf
-        target: /etc/nginx/conf.d/default.conf
-      - type: bind
-        source: ./.docker/mount/logs/nginx/access_log
-        target: /var/log/nginx/access_log
-      - type: bind
-        source: ./.docker/mount/logs/nginx/error_log
-        target: /var/log/nginx/error_log
-      - type: bind
-        source: ./.docker/mount/app
-        target: /var/www/html
+      - ./docker/mount/app:/var/www/html
+      - ./docker/mount/config/nginx/etc/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/mount/logs/nginx/access_log:/var/log/nginx/access_log
+      - ./docker/mount/logs/nginx/error_log:/var/log/nginx/error_log
     ports:
       - "${DOCKER_SYMFONY_HOST_HTTP_PORT}:80"
       - "${DOCKER_SYMFONY_HOST_HTTPS_PORT}:443"
@@ -35,10 +27,27 @@ services:
     <<: *default-app
     container_name: ${DOCKER_SYMFONY_PROJECT_NAME}_php_fpm
     build:
-      context: ./.docker/build/php-fpm
+      context: ./docker/build/php-fpm
       args:
         TIMEZONE: ${DOCKER_SYMFONY_TIMEZONE}
     volumes:
       - type: bind
-        source: ./.docker/mount/app
+        source: ./docker/mount/app
         target: /var/www/html
+    depends_on:
+      - mariadb
+  mariadb:
+    <<: *default-app
+    container_name: ${DOCKER_SYMFONY_PROJECT_NAME}_mariadb
+    build:
+      context: ./docker/build/mariadb
+    environment:
+      MARIADB_DATABASE: ${DOCKER_SYMFONY_DB_NAME}
+      MARIADB_ROOT_PASSWORD: ${DOCKER_SYMFONY_DB_ROOT_PASSWORD}
+      MARIADB_USER: ${DOCKER_SYMFONY_DB_USER_NAME}
+      MARIADB_PASSWORD: ${DOCKER_SYMFONY_DB_USER_PASSWORD}
+    volumes:
+      - ./docker/mount/config/mariadb/etc/mysql/mariadb.conf.d:/etc/mysql/mariadb.conf.d
+      - ./docker/mount/data/mariadb/dbfiles:/var/lib/mysql
+      - ./docker/mount/data/mariadb/initdb:/docker-entrypoint-initdb.d
+      - ./docker/mount/logs/mariadb:/var/log/mysql
