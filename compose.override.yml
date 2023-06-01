@@ -1,0 +1,25 @@
+x-app: &default-app
+  logging:
+    driver: 'json-file'
+    options:
+      max-size: '500k'
+      max-file: '5'
+  restart: 'unless-stopped'
+  stop_grace_period: '3s'
+
+services:
+  phpmyadmin:
+    <<: *default-app
+    container_name: ${DOCKER_SYMFONY_PROJECT_NAME}_phpmyadmin
+    build:
+      context: ./docker/build/phpmyadmin
+    environment:
+      PMA_HOST: ${DOCKER_SYMFONY_DB_HOST}
+      PMA_USER: ${DOCKER_SYMFONY_DB_USER_NAME}
+      PMA_PASSWORD: ${DOCKER_SYMFONY_DB_USER_PASSWORD}
+      PHP_MAX_INPUT_VARS: 1G
+      PHP_UPLOAD_MAX_FILESIZE: 1G
+    ports:
+      - ${DOCKER_SYMFONY_HOST_PORT_PMA}:80
+    depends_on:
+      - mariadb
