@@ -13,7 +13,14 @@ RUN echo -n 'date.timezone = ' > /usr/local/etc/php/conf.d/timezone.ini && \
 RUN apt-get update
 
 RUN apt-get --yes install \
+        iputils-ping \
+        mailutils \
+        msmtp \
+        msmtp-mta \
         procps
+
+RUN docker-php-ext-install \
+        mysqli
 
 RUN apt-get --yes autoremove && \
     apt-get --yes autoclean
