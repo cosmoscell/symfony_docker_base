@@ -1,8 +1,5 @@
 FROM nginx
 
-LABEL author="Ricardo Ruiz Martínez <richiruizmartinez@gmail.com>"
-LABEL version="0.1.0"
-
 RUN apt-get update
 
 RUN apt-get --yes install \
