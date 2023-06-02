@@ -29,9 +29,7 @@ services:
       args:
         TIMEZONE: ${DOCKER_SYMFONY_TIMEZONE}
     volumes:
-      - type: bind
-        source: ./docker/mount/app
-        target: /var/www/html
+      - ./docker/mount/app:/var/www/html
     depends_on:
       - mariadb
   mariadb:
