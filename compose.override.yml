@@ -8,6 +8,10 @@ x-app: &default-app
   stop_grace_period: 3s
 
 services:
+  php_fpm:
+    <<: *default-app
+    volumes:
+      - ./docker/mount/config/php-fpm/etc/msmtprc:/etc/msmtprc
   phpmyadmin:
     <<: *default-app
     container_name: ${DOCKER_SYMFONY_PROJECT_NAME}_phpmyadmin
