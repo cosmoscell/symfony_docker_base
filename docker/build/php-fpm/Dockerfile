@@ -1,8 +1,5 @@
 FROM php:8.2.1-fpm
 
-LABEL author="Ricardo Ruiz Martínez <richiruizmartinez@gmail.com>"
-LABEL version="0.1.0"
-
 ARG TIMEZONE=Europe/Madrid
 RUN echo "${TIMEZONE}" > /etc/timezone && \
     rm --force /etc/localtime && \
@@ -13,14 +10,31 @@ RUN echo -n 'date.timezone = ' > /usr/local/etc/php/conf.d/timezone.ini && \
 RUN apt-get update
 
 RUN apt-get --yes install \
+        curl
+
+# Composer
+RUN curl --silent --show-error https://getcomposer.org/installer --output /tmp/.composer-setup.php && \
+        php /tmp/.composer-setup.php --install-dir=/usr/local/bin --filename=composer && \
+        rm /tmp/.composer-setup.php
+
+# Symfony
+RUN curl --silent --tlsv1 --location --show-error https://dl.cloudsmith.io/public/symfony/stable/setup.deb.sh | bash
+
+RUN apt-get --yes install \
+        git \
         iputils-ping \
+        libzip-dev \
         mailutils \
         msmtp \
         msmtp-mta \
-        procps
+        nano \
+        procps \
+        symfony-cli \
+        unzip
 
 RUN docker-php-ext-install \
-        mysqli
+        mysqli \
+        zip
 
 RUN apt-get --yes autoremove && \
     apt-get --yes autoclean
