@@ -1,1 +1,2 @@
 mariadb/dbfiles/*
+!mariadb/dbfiles/.gitkeep
