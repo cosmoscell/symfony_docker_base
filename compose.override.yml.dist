@@ -1,0 +1,37 @@
+x-app: &default-app
+  logging:
+    driver: json-file
+    options:
+      max-size: 500k
+      max-file: 5
+  restart: unless-stopped
+  stop_grace_period: 3s
+
+services:
+  php_fpm:
+    <<: *default-app
+    volumes:
+      - ./docker/mount/config/php-fpm/msmtp/etc/msmtprc:/etc/msmtprc
+  phpmyadmin:
+    <<: *default-app
+    container_name: ${DOCKER_SYMFONY_PROJECT_NAME}_phpmyadmin
+    build:
+      context: ./docker/build/phpmyadmin
+    environment:
+      PMA_HOST: ${DOCKER_SYMFONY_DB_HOST}
+      PMA_USER: ${DOCKER_SYMFONY_DB_USER_NAME}
+      PMA_PASSWORD: ${DOCKER_SYMFONY_DB_USER_PASSWORD}
+      PHP_MAX_INPUT_VARS: 1G
+      PHP_UPLOAD_MAX_FILESIZE: 1G
+    ports:
+      - ${DOCKER_SYMFONY_HOST_PORT_PHPMYADMIN}:80
+    depends_on:
+      - mariadb
+  mailhog:
+    <<: *default-app
+    container_name: ${DOCKER_SYMFONY_PROJECT_NAME}_mailhog
+    build:
+      context: ./docker/build/mailhog
+    ports:
+      - ${DOCKER_SYMFONY_HOST_PORT_MAILHOG_HTTP}:8025
+      - ${DOCKER_SYMFONY_HOST_PORT_MAILHOG_SMTP}:1025
