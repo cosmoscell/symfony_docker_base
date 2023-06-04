@@ -23,6 +23,7 @@ clean() {
 
 function echo_section() {
   echo -e "${ANSI_BOLD}${ANSI_FG_YELLOW}${1} ...${ANSI_DEFAULT}"
+  return 0
 }
 
 get_random_token() {
@@ -40,6 +41,7 @@ intro() {
   echo -e "${ANSI_BG_BLUE}""$(printf '%*s' 3)""(c) $(date +%Y) ${AUTHOR_NAME} <${AUTHOR_EMAIL}>""$(printf '%*s' 3)""${ANSI_BG_DEFAULT}"
   echo -e "${ANSI_BG_BLUE}""$(printf '%*s' 66)""${ANSI_BG_DEFAULT}"
   echo -e "${ANSI_DEFAULT}"
+  return 0
 }
 
 load_config() {
@@ -51,6 +53,7 @@ load_config() {
   fi
   chmod 644 ${CONFIG_FILE}
   source ${CONFIG_FILE}
+  return 0
 }
 
 load_docker_env() {
@@ -59,18 +62,19 @@ load_docker_env() {
       echo -e -n "${ANSI_ERROR}"' '
       echo 'File'' '"${DOCKER_ENVIRONMENT_FILE}"' ''does not exist'
       echo ''
-      exit
+      exit 1
   fi
   source ${DOCKER_ENVIRONMENT_FILE}
   if [ ${?} -ne 0 ]; then
     echo -e -n "${ANSI_ERROR}"' '
     echo 'Cannot load file '"${DOCKER_ENVIRONMENT_FILE}"
     echo ''
-    exit
+    exit 1
   else
     echo -e -n "${ANSI_OK}"' '
     echo "${DOCKER_ENVIRONMENT_FILE}"' ''file loaded'
     echo ''
+    return 0
   fi
 }
 
@@ -82,17 +86,19 @@ regenerate_docker_env_file() {
     echo -e -n "${ANSI_ERROR}"' '
     echo 'Cannot regenerate file '"${DOCKER_ENVIRONMENT_FILE}"
     echo ''
-    exit
+    exit 1
   else
     echo -e -n "${ANSI_OK}"' '
     echo "${DOCKER_ENVIRONMENT_FILE}"' ''file regenerated from template'' '"${DOCKER_ENVIRONMENT_DIST_FILE}"
     echo ''
+    return 0
   fi
 }
 
 set_ansi_ok_error_tags() {
   ANSI_OK="${ANSI_BOLD}${ANSI_BG_GREEN}${ANSI_FG_BLACK} ${ENVIRONMENT} OK ${ANSI_DEFAULT}"
   ANSI_ERROR="${ANSI_BOLD}${ANSI_FG_RED}ERROR:${ANSI_DEFAULT}"
+  return 0
 }
 
 set_database_name() {
@@ -107,11 +113,12 @@ set_database_name() {
     echo -e -n "${ANSI_ERROR}"' '
     echo 'Cannot write the database name "'"${DB_NAME}"'" to'' '"${DOCKER_ENVIRONMENT_FILE}"
     echo ''
-    exit
+    exit 1
   else
     echo -e -n "${ANSI_OK}"' '
     echo 'Database name "'"${DB_NAME}"'" written to'' '"${DOCKER_ENVIRONMENT_FILE}"
     echo ''
+    return 0
   fi
 }
 
@@ -123,11 +130,12 @@ set_database_root_password() {
     echo -e -n "${ANSI_ERROR}"' '
     echo 'Cannot write the database root password "'"${DB_ROOT_PASSWORD}"'"'' ''to'' '"${DOCKER_ENVIRONMENT_FILE}"
     echo ''
-    exit
+    exit 1
   else
     echo -e -n "${ANSI_OK}"' '
     echo 'Random database root password "'"${DB_ROOT_PASSWORD}"'" written to'' '"${DOCKER_ENVIRONMENT_FILE}"
     echo ''
+    return 0
   fi
 }
 
@@ -142,11 +150,12 @@ set_database_user_name() {
     echo -e -n "${ANSI_ERROR}"' '
     echo 'Cannot write the database username "'"${DB_USER_NAME}"'" to'' '"${DOCKER_ENVIRONMENT_FILE}"
     echo ''
-    exit
+    exit 1
   else
     echo -e -n "${ANSI_OK}"' '
     echo 'Database username "'"${DB_USER_NAME}"'" written to'' '"${DOCKER_ENVIRONMENT_FILE}"
     echo ''
+    return 0
   fi
 }
 
@@ -158,17 +167,19 @@ set_database_user_password() {
     echo -e -n "${ANSI_ERROR}"' '
     echo 'Cannot write the database user password "'"${DB_USER_PASSWORD}"'" to'' '"${DOCKER_ENVIRONMENT_FILE}"
     echo ''
-    exit
+    exit 1
   else
     echo -e -n "${ANSI_OK}"' '
     echo 'Random database user password "'"${DB_USER_PASSWORD}"'" written to'' '"${DOCKER_ENVIRONMENT_FILE}"
     echo ''
+    return 0
   fi
 }
 
 set_environment() {
   DOCKER_ENVIRONMENT_FILE="${DOCKER_ENVIRONMENT_FILE}"'.'"${1}"
   ENVIRONMENT=${1^^} # DEV | PROD
+  return 0
 }
 
 set_project_name() {
@@ -183,11 +194,12 @@ set_project_name() {
     echo -e -n "${ANSI_ERROR}"' '
     echo 'Cannot write the project name '"${PROJECT_NAME}"' to'' '"${DOCKER_ENVIRONMENT_FILE}"
     echo ''
-    exit
+    exit 1
   else
     echo -e -n "${ANSI_OK}"' '
     echo 'Project name "'"${PROJECT_NAME}"'" written to'' '"${DOCKER_ENVIRONMENT_FILE}"
     echo ''
+    return 0
   fi
 }
 
@@ -205,7 +217,7 @@ set_timezone() {
                 '(consult file '"${TIMEZONES_FILE}"' ' \
                 'to see the accepted time zones, time zone is case sensitive)' | tr -s ' ')
     echo ''
-    exit
+    exit 1
   fi
   PROJECT_TIMEZONE_SLASH_ESCAPED=$(echo ${PROJECT_TIMEZONE} | sed 's/\//\\\//g')
   sed -i 's/DOCKER_SYMFONY_TIMEZONE=/DOCKER_SYMFONY_TIMEZONE='"${PROJECT_TIMEZONE_SLASH_ESCAPED}"'/' ${DOCKER_ENVIRONMENT_FILE}
@@ -213,11 +225,12 @@ set_timezone() {
     echo -e -n "${ANSI_ERROR}"' '
     echo 'Cannot write the time zone'' '"\"${PROJECT_TIMEZONE}\""' ''to'' '"${DOCKER_ENVIRONMENT_FILE}"
     echo ''
-    exit
+    exit 1
   else
     echo -e -n "${ANSI_OK}"' '
     echo 'Time zone "'"${PROJECT_TIMEZONE}"'" written to'' '"${DOCKER_ENVIRONMENT_FILE}"
     echo ''
+    return 0
   fi
 }
 
@@ -228,11 +241,12 @@ function stop_docker_services() {
     echo -e -n "${ANSI_ERROR}"' '
     echo 'Cannot stop Docker services'
     echo ''
-    exit
+    exit 1
   else
     echo -e -n "${ANSI_OK}"' '
     echo 'Docker services stopped'
     echo ''
+    return 0
   fi
 }
 
@@ -244,8 +258,9 @@ usage() {
     echo -n '      '
     echo -e "${ANSI_BOLD}${0}${ANSI_DEFAULT}"' ''dev|prod'
     echo '';
-    exit
+    exit 0
   fi
+  return 0
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -271,7 +286,7 @@ set_database_user_name
 set_database_user_password
 load_docker_env
 stop_docker_services
-exit
+exit 0
 
 # ----------------------------------------------------------------------------------------------------------------------
 # end main
