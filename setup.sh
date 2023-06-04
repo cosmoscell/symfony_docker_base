@@ -328,21 +328,26 @@ docker compose up -d --remove-orphans && \
   echo 'Containers running' && \
   echo ''
 
-echo -e "${ANSI_BOLD}${ANSI_FG_YELLOW}Installing Symfony ...${ANSI_DEFAULT}"
-if [ ! -z "$(ls -A ${APP_DIR_HOST})" ]; then
-  echo 'app/ directory ('"${APP_DIR_HOST}"') must be empty'
-  read -p 'Empty? [Yes/no] ' ANSWER
-  ANSWER="${ANSWER^^}"
-  if [ "${ANSWER}" = '' -o "${ANSWER:0:1}" = 'Y' ]; then
-    docker exec "${DOCKER_SYMFONY_PROJECT_NAME}_php_fpm" find ${APP_DIR_CONTAINER} -type f -exec rm {} \; && \
-      docker exec "${DOCKER_SYMFONY_PROJECT_NAME}_php_fpm" find ${APP_DIR_CONTAINER} -mindepth 1 -type d -exec rm -fr {} \; 2>/dev/null && \
-      echo -e -n "${ANSI_OK}"' ' && \
-      echo 'app/ directory ('"${APP_DIR_HOST}"') emptied'
-  else
+echo -e "\e[1;33mChecking app/ directory (""${APP_DIR_HOST}"") ...\e[0m"
+if [ ! -d ${APP_DIR_HOST} ]; then
+  mkdir -p ${APP_DIR_HOST} && \
+    chmod 777 ${APP_DIR_HOST} && \
+    echo -e -n "\e[1;97;42m OK \e[0m"' ' && \
+    echo 'app/ directory ('"${APP_DIR_HOST}"') created'
     echo ''
-    exit
-  fi
+  else
+    echo -e -n "\e[1;97;42m OK \e[0m"' '
+    echo 'Nothing to do'
+    echo ''
 fi
+
+echo -e "\e[1;33mStarting Docker services ...\e[0m"
+docker compose up --detach --remove-orphans && \
+  echo -e -n "\e[1;97;42m OK \e[0m"' ' && \
+  echo 'Containers running' && \
+  echo ''
+
+echo -e "\e[1;33mInstalling Symfony ...\e[0m"
 docker exec "${DOCKER_SYMFONY_PROJECT_NAME}_php_fpm" git config --global --add safe.directory /var/www/html && \
   docker exec "${DOCKER_SYMFONY_PROJECT_NAME}_php_fpm" git config --global user.email "user@localhost" && \
   docker exec "${DOCKER_SYMFONY_PROJECT_NAME}_php_fpm" git config --global user.name "user" && \
@@ -352,6 +357,8 @@ docker exec "${DOCKER_SYMFONY_PROJECT_NAME}_php_fpm" git config --global --add s
   echo ''
 
 echo -e "${ANSI_BOLD}${ANSI_FG_YELLOW}Installing additional packages ...${ANSI_DEFAULT}"
+
+echo -e "\e[1;33mInstalling additional packages ...\e[0m"
 docker exec "${DOCKER_SYMFONY_PROJECT_NAME}_php_fpm" composer require symfony/monolog-bundle && \
   docker exec "${DOCKER_SYMFONY_PROJECT_NAME}_php_fpm" composer require symfony/orm-pack && \
   docker exec "${DOCKER_SYMFONY_PROJECT_NAME}_php_fpm" composer require --dev symfony/maker-bundle && \
@@ -364,5 +371,12 @@ docker exec "${DOCKER_SYMFONY_PROJECT_NAME}_php_fpm" composer require symfony/mo
 mkdir -p ${UPLOADS_DIR_HOST} && \
   chmod 777 ${UPLOADS_DIR_HOST} && \
   echo -e -n "${ANSI_OK}"' ' && \
+  echo -e -n "\e[1;97;42m OK \e[0m"' ' && \
+  echo 'Additional packages installed'
+  echo ''
+
+mkdir -p ${UPLOADS_DIR_HOST} && \
+  chmod 777 ${UPLOADS_DIR_HOST} && \
+  echo -e -n "\e[1;97;42m OK \e[0m"' ' && \
   echo 'uploads/ directory ('"${UPLOADS_DIR_HOST}"') created' && \
   echo ''
